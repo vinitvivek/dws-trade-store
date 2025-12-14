@@ -1,0 +1,1 @@
+"""DWS - Trade Store Application - Test suite."""

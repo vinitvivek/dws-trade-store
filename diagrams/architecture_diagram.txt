@@ -1,0 +1,115 @@
+@startuml Trade Store Architecture
+
+!define RECTANGLE class
+
+title Trade Store System Architecture
+
+skinparam rectangle {
+    BackgroundColor<<external>> LightBlue
+    BackgroundColor<<service>> LightGreen
+    BackgroundColor<<storage>> LightYellow
+    BackgroundColor<<messaging>> LightCoral
+}
+
+rectangle "External Systems" <<external>> {
+    [Trade Producers]
+    [API Clients]
+}
+
+rectangle "Application Layer" <<service>> {
+    rectangle "FastAPI Application" {
+        [REST API Endpoints]
+        [Request Validation]
+        [Exception Handlers]
+    }
+    
+    rectangle "Kafka Consumer" {
+        [Message Consumer]
+        [Message Parser]
+    }
+    
+    rectangle "Background Services" {
+        [Expiry Scheduler]
+        [APScheduler]
+    }
+}
+
+rectangle "Business Logic Layer" <<service>> {
+    [Trade Service] as TS
+    [Validation Engine]
+    [Business Rules]
+}
+
+rectangle "Data Access Layer" <<service>> {
+    [PostgreSQL Repository]
+    [MongoDB Repository]
+}
+
+rectangle "Message Broker" <<messaging>> {
+    database "Apache Kafka" {
+        [trades topic]
+    }
+}
+
+rectangle "Storage Layer" <<storage>> {
+    database "PostgreSQL" {
+        [trades table]
+        [indexes]
+    }
+    
+    database "MongoDB" {
+        [audit_logs collection]
+        [trade_events collection]
+    }
+}
+
+rectangle "Monitoring & Logging" <<service>> {
+    [Application Logs]
+    [Audit Trail]
+    [Health Checks]
+}
+
+' Connections
+[Trade Producers] --> [trades topic] : Publish Trades
+[API Clients] --> [REST API Endpoints] : HTTP/JSON
+
+[trades topic] --> [Message Consumer] : Consume
+[Message Consumer] --> [Message Parser] : Parse JSON
+[Message Parser] --> TS : TradeCreate
+
+[REST API Endpoints] --> TS : API Calls
+[Expiry Scheduler] --> TS : Scheduled Jobs
+
+TS --> [Validation Engine] : Validate
+TS --> [PostgreSQL Repository] : CRUD Operations
+TS --> [MongoDB Repository] : Audit Logging
+
+[PostgreSQL Repository] --> [trades table] : SQL
+[MongoDB Repository] --> [audit_logs collection] : NoSQL
+[MongoDB Repository] --> [trade_events collection] : NoSQL
+
+TS --> [Application Logs] : Log Events
+[MongoDB Repository] --> [Audit Trail] : Persist Logs
+
+note right of [Validation Engine]
+  **Validation Rules:**
+  1. Reject lower versions
+  2. Accept same/higher versions
+  3. Reject past maturity dates
+end note
+
+note bottom of [PostgreSQL]
+  **Structured Data:**
+  - Trade records
+  - Transactional data
+  - Relational integrity
+end note
+
+note bottom of [MongoDB]
+  **Unstructured Data:**
+  - Audit logs
+  - Event history
+  - Flexible schema
+end note
+
+@enduml
