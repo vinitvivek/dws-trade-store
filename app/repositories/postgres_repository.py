@@ -40,9 +40,10 @@ class PostgresRepository:
                 version INT NOT NULL,
                 counter_party_id VARCHAR(50) NOT NULL,
                 book_id VARCHAR(50) NOT NULL,
-                maturity_date DATE NOT NULL,
+                maturity_date DATE NOT NULL,        
                 created_date DATE NOT NULL,
-                expired BOOLEAN NOT NULL DEFAULT FALSE
+                expired BOOLEAN NOT NULL DEFAULT FALSE,
+                QUANTITY INT
             );
             """
             self.cursor.execute(create_trades_table)
