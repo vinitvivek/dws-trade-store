@@ -19,7 +19,8 @@ def create_trade_message(trade_id: str, version: int, days_from_now: int = 30) -
         "book_id": "B1",
         "maturity_date": maturity_date.isoformat(),
         "created_date": today.isoformat(),
-        "expired": False
+        "expired": False,
+        "quantity": 2
     }
 
 
