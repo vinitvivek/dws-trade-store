@@ -15,6 +15,7 @@ class TradeCreate(BaseModel):
     maturity_date: date = Field(..., description="Maturity date")
     created_date: date = Field(..., description="Created date")
     expired: bool = Field(default=False, description="Expired flag")
+    quantity: int = Field
     
     model_config = {
         "json_schema_extra": {
@@ -44,6 +45,7 @@ class TradeResponse(BaseModel):
     created_date: date
     expired: bool
     last_updated: Optional[datetime] = None
+    quantity == 0
     
     model_config = {"from_attributes": True}
 
